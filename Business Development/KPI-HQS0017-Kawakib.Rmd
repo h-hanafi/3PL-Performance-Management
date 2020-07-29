@@ -1,107 +1,132 @@
 ---
-title: "KPI-HQS0017-Kawakib"
-author: "Hussam Hanafi"
+title: "KPI Report-HQS0017-Kawakib"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: word_document
 ---
 
 ```{r setup, include=FALSE}
-library(tidyverse)
-library(lubridate)
-library(bizdays)
-library(readxl)
-library(googledrive)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+if(!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+if(!require(lubridate)) install.packages("lubridate", repos = "http://cran.us.r-project.org")
+if(!require(bizdays)) install.packages("bizdays", repos = "http://cran.us.r-project.org")
+if(!require(readxl)) install.packages("readxl", repos = "http://cran.us.r-project.org")
+if(!require(googledrive)) install.packages("googledrive", repos = "http://cran.us.r-project.org")
+if(!require(knitr)) install.packages("knitr", repos = "http://cran.us.r-project.org")
 drive_auth(email = "3pl.hr.pnd@gmail.com")
 create.calendar(name = "mycal", weekdays = c("friday","saturday"))
 options(digits = 1)
+dir.create(file.path(getwd(), "DATA"))
 
 # Invoice Tracking
 drive_download("Invoice Tracking", path = file.path(getwd(),"DATA","Invoice Tracking.xlsx"),overwrite = TRUE)
 IT_Salary <- read_excel(file.path(getwd(),"DATA","Invoice Tracking.xlsx"),skip = 2,sheet = "Salary Invoices") %>% fill(Month)
 colnames(IT_Salary) <- colnames(IT_Salary) %>% str_replace_all("2","T") %>% str_replace_all(" ","") %>% str_replace_all("-","_") %>% str_replace_all("&","n")
-IT_Salary <- IT_Salary %>% gather(key = "Invoice_Recepient",value = "value",TB_KRT:RAWAT) %>% spread(key = Stage, value = value)
+IT_Salary <- IT_Salary %>% gather(key = "Invoice_Recepient",value = "value",TB_KRT:RPOC) %>% spread(key = Stage, value = value)
 colnames(IT_Salary) <- colnames(IT_Salary) %>% str_replace_all(" ","_")  
 IT_Salary <- IT_Salary %>% select(Month,Invoice_Recepient, Invoice_No., Date_Prepared, Date_Submitted, Date_Payment_Recieved) %>% 
-  arrange(match(Month,month.name))
+  arrange(match(Month,month.name)) %>% mutate(Date_Prepared = as_date(as.integer(Date_Prepared), origin = "1899-12-30"), 
+                                              Date_Submitted = as_date(as.integer(Date_Submitted), origin = "1899-12-30"),
+                                              Date_Payment_Recieved = as_date(as.integer(Date_Payment_Recieved), origin = "1899-12-30"))
 
 IT_FOT <- read_excel(file.path(getwd(),"DATA","Invoice Tracking.xlsx"),skip = 2,sheet = "Fixed Overtime Invoices") %>% fill(Month)
 colnames(IT_FOT) <- colnames(IT_FOT) %>% str_replace_all("2","T") %>% str_replace_all(" ","") %>% str_replace_all("-","_") %>% str_replace_all("&","n")
-IT_FOT <- IT_FOT %>% gather(key = "Invoice_Recepient",value = "value",TB_KRT:RAWAT) %>% spread(key = Stage, value = value)
+IT_FOT <- IT_FOT %>% gather(key = "Invoice_Recepient",value = "value",TB_KRT:RPOC) %>% spread(key = Stage, value = value)
 colnames(IT_FOT) <- colnames(IT_FOT) %>% str_replace_all(" ","_") 
 IT_FOT <- IT_FOT %>% select(Month,Invoice_Recepient, Invoice_No., Date_Prepared, Date_Submitted, Date_Payment_Recieved)
 IT_FOT <- IT_FOT %>% select(Month,Invoice_Recepient, Invoice_No., Date_Prepared, Date_Submitted, Date_Payment_Recieved) %>% 
-  arrange(match(Month,month.name))
+  arrange(match(Month,month.name)) %>% mutate(Date_Prepared = as_date(as.integer(Date_Prepared), origin = "1899-12-30"), 
+                                              Date_Submitted = as_date(as.integer(Date_Submitted), origin = "1899-12-30"),
+                                              Date_Payment_Recieved = as_date(as.integer(Date_Payment_Recieved), origin = "1899-12-30"))
 
 IT_VOT <- read_excel(file.path(getwd(),"DATA","Invoice Tracking.xlsx"),skip = 2,sheet = "Variable Overtime Invoices") %>% fill(Month)
 colnames(IT_VOT) <- colnames(IT_VOT) %>% str_replace_all("2","T") %>% str_replace_all(" ","") %>% str_replace_all("-","_") %>% str_replace_all("&","n")
-IT_VOT <- IT_VOT %>% gather(key = "Invoice_Recepient",value = "value",TB_KRT:RAWAT) %>% spread(key = Stage, value = value)
+IT_VOT <- IT_VOT %>% gather(key = "Invoice_Recepient",value = "value",TB_KRT:RPOC) %>% spread(key = Stage, value = value)
 colnames(IT_VOT) <- colnames(IT_VOT) %>% str_replace_all(" ","_") 
 IT_VOT <- IT_VOT %>% select(Month,Invoice_Recepient, Invoice_No., Date_Prepared, Date_Submitted, Date_Payment_Recieved)
 IT_VOT <- IT_VOT %>% select(Month,Invoice_Recepient, Invoice_No., Date_Prepared, Date_Submitted, Date_Payment_Recieved) %>% 
-  arrange(match(Month,month.name))
+  arrange(match(Month,month.name)) %>% mutate(Date_Prepared = as_date(as.integer(Date_Prepared), origin = "1899-12-30"), 
+                                              Date_Submitted = as_date(as.integer(Date_Submitted), origin = "1899-12-30"),
+                                              Date_Payment_Recieved = as_date(as.integer(Date_Payment_Recieved), origin = "1899-12-30"))
 
 IT_CL <- read_excel(file.path(getwd(),"DATA","Invoice Tracking.xlsx"),skip = 2,sheet = "Casual Labour Invoices") %>% fill(Month)
 colnames(IT_CL) <- colnames(IT_CL) %>% str_replace_all("2","T") %>% str_replace_all(" ","") %>% str_replace_all("-","_") %>% str_replace_all("&","n")
-IT_CL <- IT_CL %>% gather(key = "Invoice_Recepient",value = "value",TB_KRT:RAWAT) %>% spread(key = Stage, value = value)
+IT_CL <- IT_CL %>% gather(key = "Invoice_Recepient",value = "value",TB_KRT:RPOC) %>% spread(key = Stage, value = value)
 colnames(IT_CL) <- colnames(IT_CL) %>% str_replace_all(" ","_") 
 IT_CL <- IT_CL %>% select(Month,Invoice_Recepient, Invoice_No., Date_Prepared, Date_Submitted, Date_Payment_Recieved)
 IT_CL <- IT_CL %>% select(Month,Invoice_Recepient, Invoice_No., Date_Prepared, Date_Submitted, Date_Payment_Recieved) %>% 
-  arrange(match(Month,month.name))
+  arrange(match(Month,month.name)) %>% mutate(Date_Prepared = as_date(as.integer(Date_Prepared), origin = "1899-12-30"), 
+                                              Date_Submitted = as_date(as.integer(Date_Submitted), origin = "1899-12-30"),
+                                              Date_Payment_Recieved = as_date(as.integer(Date_Payment_Recieved), origin = "1899-12-30"))
 
 # Customer Satisfaction Survey
-drive_download("Survey Data Collection", path = file.path(getwd(),"DATA","Satisfaction Survey.csv"),overwrite = TRUE)
-CSS <- read_csv(file.path(getwd(),"DATA","Satisfaction Survey.csv"),skip = 8)  
+drive_download("Business Development Survey Data Collection", path = file.path(getwd(),"DATA","Satisfaction Survey.csv"),overwrite = TRUE)
+CSS <- read_csv(file.path(getwd(),"DATA","Satisfaction Survey.csv"),skip = 8)
+CSS <- CSS %>% gather(key = "Dimension", value = "Score", 3:ncol(.))
 colnames(CSS) <- colnames(CSS) %>% str_replace_all(.," ","_") %>% str_replace_all(.,"-","")
 
 # Log Sheet
 drive_download("Log Sheet", path = file.path(getwd(),"DATA","Log Sheet.csv"),overwrite = TRUE)
 Log_Sheet <- read_csv(file.path(getwd(),"Data","Log Sheet.csv"),skip = 5)
 colnames(Log_Sheet) <- colnames(Log_Sheet) %>% str_replace_all(.," ","_") %>% str_replace_all(.,"-","")
+Log_Sheet <- Log_Sheet %>% mutate(Date_Request_Prepared_by_HQ = dmy(Date_Request_Prepared_by_HQ),
+                     Date_Request_Recieved_by_Staff = dmy(Date_Request_Recieved_by_Staff),
+                     Date_Request_Recieved_by_Coordinator = dmy(Date_Request_Recieved_by_Coordinator))
 
 # Sheet Collection Tracking
 drive_download("Sheet Collection Tracker", path = file.path(getwd(),"DATA","Sheet Collection Tracker.xlsx"),overwrite = TRUE)
-TS <- read_excel(file.path(getwd(),"DATA","Sheet Collection Tracker.xlsx"),skip = 2, sheet = "Time Sheets")
+TS <- read_excel(file.path(getwd(),"DATA","Sheet Collection Tracker.xlsx"),skip = 2, sheet = "Time Sheets - KRT")
 colnames(TS) <- colnames(TS) %>% str_replace_all("2","TWO")
 TS <- TS %>% fill(Month)
-TS <- TS %>% gather(3:7,key = "OPCO", value = "Date")
+TS <- TS %>% gather(3:ncol(.),key = "OPCO", value = "Date")
 
-OTS <- read_excel(file.path(getwd(),"DATA","Sheet Collection Tracker.xlsx"),skip = 2, sheet = "Overtime Sheets")
+OTS <- read_excel(file.path(getwd(),"DATA","Sheet Collection Tracker.xlsx"),skip = 2, sheet = "Overtime Sheets - KRT")
 colnames(OTS) <- colnames(OTS) %>% str_replace_all("2","TWO")
 OTS <- OTS %>% fill(Month)
-OTS <- OTS %>% gather(3:7,key = "OPCO", value = "Date")
+OTS <- OTS %>% gather(3:ncol(.),key = "OPCO", value = "Date")
 
 # Training Tracker
-drive_download("Mandatory Training Tracker", path = file.path(getwd(),"DATA","Mandatory Training Tracker.csv"),overwrite = TRUE)
-MTT <- read_csv(file.path(getwd(),"DATA","Mandatory Training Tracker.csv"),skip = 6)
+drive_download("Mandatory Training Tracker", path = file.path(getwd(),"DATA","Mandatory Training Tracker.xlsx"),overwrite = TRUE)
+MTT <- read_excel(file.path(getwd(),"DATA","Mandatory Training Tracker.xlsx"),range = "E7:G56") %>%
+  rbind(read_excel(file.path(getwd(),"DATA","Mandatory Training Tracker.xlsx"),range = "I7:K56")) %>%
+  rbind(read_excel(file.path(getwd(),"DATA","Mandatory Training Tracker.xlsx"),range = "M7:O56")) %>% 
+  cbind(read_excel(file.path(getwd(),"DATA","Mandatory Training Tracker.xlsx"),range = "A7:C56")) %>% 
+  mutate(Course = c(rep("Customer Service",49),rep("Conflict Resolution",49),rep("People Management",49))) %>%
+  relocate(ID:Course, .before = 1) %>% filter(!is.na(ID))
 colnames(MTT) <- colnames(MTT) %>% str_replace_all(.," ","_") %>% str_replace_all(.,"-","")
 
+
 # Weekly meeting Attendance 
-drive_download("Weekly Meeting Attendance Tracker", path = file.path(getwd(),"DATA","Weekly Meeting Attendance Tracker.csv"),overwrite = TRUE)
-WMA <- read_csv(file.path(getwd(),"DATA","Weekly Meeting Attendance Tracker.csv"),skip = 6)
-WMA_Legend <- read_csv(file.path(getwd(),"DATA","Weekly Meeting Attendance Tracker.csv"),skip = 1,n_max = 3, col_names = FALSE) %>% pull(1)
+drive_download("Weekly Meeting Attendance Tracker", path = file.path(getwd(),"DATA","Weekly Meeting Attendance Tracker.xlsx"),overwrite = TRUE)
+WMA <- read_excel(file.path(getwd(),"DATA","Weekly Meeting Attendance Tracker.xlsx"),skip = 6, sheet = "April - June") %>%
+  cbind(read_excel(file.path(getwd(),"DATA","Weekly Meeting Attendance Tracker.xlsx"),skip = 6, sheet = "Jul - Sep") %>% select(4:ncol(.))) %>%
+  cbind(read_excel(file.path(getwd(),"DATA","Weekly Meeting Attendance Tracker.xlsx"),skip = 6, sheet = "Oct - Dec") %>% select(4:ncol(.)))
+colnames(WMA) <- colnames(WMA) %>% str_replace_all(.," ","_") %>% str_replace_all(.,"-","")
+WMA_Legend <- read_excel(file.path(getwd(),"DATA","Weekly Meeting Attendance Tracker.xlsx"),skip = 1,n_max = 3, col_names = FALSE, sheet = "April - June") %>% pull(1)
+WMA <- WMA %>% gather(key = "Date", value = "Attendance",4:ncol(.)) %>% filter(!is.na(ID)) %>% mutate(Date = as_date(as.integer(Date), origin = "1899-12-30"))
 
 # Development program tracking
 drive_download("Development Program Attendance", path = file.path(getwd(),"DATA","Development Program Attendance.xlsx"),overwrite = TRUE)
 DPA <- read_excel(file.path(getwd(),"DATA","Development Program Attendance.xlsx"),skip = 2, sheet = "DPA")
 colnames(DPA) <- colnames(DPA) %>% str_replace_all(" ","_")
+DPA <- DPA %>% gather(key = "Program_Name",value = "Attendance",5:ncol(.))            
 
 ```
 
 # Score Card
 
 
-```{r score card}
+```{r score card, echo=FALSE, warning=FALSE}
 # Score Card 2B Kaawakib
-SC_Log_Sheet <- Log_Sheet %>% mutate(Time = (Request_Completed - Request_Recieved) <=3) %>% filter(Coordinator_ID == "HQS0017") %>%
-  summarise(`Average Time for Employee Request completion` = as.numeric(round(mean(Request_Completed - Request_Recieved,na.rm = T),0))) %>% 
+SC_Log_Sheet <- Log_Sheet %>% mutate(Time = bizdays(Date_Request_Recieved_by_Staff, Date_Request_Recieved_by_Coordinator,"mycal") <= 3) %>% 
+  filter(Coordinator_ID == "HQS0017", Request_Type != "Insurance Issues") %>%
+  summarise(`Average Time for Employee Request completion` = mean(Time, na.rm = T)) %>% 
   gather(key = "KPI", value = "Score")
 
-SC_CSS <- CSS %>% filter(OPCO == "2B") %>% gather(3:5,key = "KPI", value = "Score") %>% 
-  summarise(Score = mean(Score) * 20) %>% mutate(KPI = "Customer Satisfaction Score") %>% select(KPI, Score)
+SC_CSS <- CSS %>%  summarise(Score = mean(Score) * 25) %>% mutate(KPI = "Customer Satisfaction Score") %>% select(KPI, Score)
 
 SC_IS <- IT_Salary %>% group_by(Invoice_Recepient) %>% 
-  mutate(Submit_On_time = Date_Submitted <= dmy(paste(15,month(Date_Submitted),2020)),
-         Pay_On_time = Date_Payment_Recieved <= dmy(paste(15,month(Date_Payment_Recieved),2020))) %>% 
+  mutate(Submit_On_time = Date_Submitted <= dmy(paste(15,match(Month,month.name),2020)),
+         Pay_On_time = Date_Payment_Recieved <= dmy(paste(15,match(Month,month.name),2020))) %>% 
   summarise(Average_Date_Pay = as.integer(mean(day(Date_Payment_Recieved))),
             Average_Date_Submit = as.integer(mean(day(Date_Submitted))),
             Submit_On_time = mean(Submit_On_time) * 100, Pay_On_time = mean(Pay_On_time) * 100) %>% 
@@ -120,8 +145,8 @@ SC_IS <- IT_Salary %>% group_by(Invoice_Recepient) %>%
                  "Salary Invoices submitted on time","Salary Payments Submitted on time"))
 
 SC_IS <- IT_CL %>% group_by(Invoice_Recepient) %>% 
-  mutate(Submit_On_time = Date_Submitted <= dmy(paste(15,month(Date_Submitted),2020)),
-         Pay_On_time = Date_Payment_Recieved <= dmy(paste(15,month(Date_Payment_Recieved),2020))) %>% 
+  mutate(Submit_On_time = Date_Submitted <= dmy(paste(15,match(Month,month.name),2020)),
+         Pay_On_time = Date_Payment_Recieved <= dmy(paste(15,match(Month,month.name),2020))) %>% 
   summarise(Average_Date_Pay = as.integer(mean(day(Date_Payment_Recieved))),
             Average_Date_Submit = as.integer(mean(day(Date_Submitted))),
             Submit_On_time = mean(Submit_On_time) * 100, Pay_On_time = mean(Pay_On_time) * 100) %>% 
@@ -141,8 +166,8 @@ SC_IS <- IT_CL %>% group_by(Invoice_Recepient) %>%
   full_join(SC_IS) %>% group_by(KPI) %>% summarise(Score = mean(Score))
 
 SC_IO <- IT_FOT %>% group_by(Invoice_Recepient) %>% 
-  mutate(Submit_On_time = Date_Submitted <= dmy(paste(15,month(Date_Submitted),2020)),
-         Pay_On_time = Date_Payment_Recieved <= dmy(paste(25,month(Date_Payment_Recieved),2020))) %>% 
+  mutate(Submit_On_time = Date_Submitted <= dmy(paste(15,match(Month,month.name),2020)),
+         Pay_On_time = Date_Payment_Recieved <= dmy(paste(25,match(Month,month.name),2020))) %>% 
   summarise(Average_Date_Pay = as.integer(mean(day(Date_Payment_Recieved))),
             Average_Date_Submit = as.integer(mean(day(Date_Submitted))),
             Submit_On_time = mean(Submit_On_time) * 100, Pay_On_time = mean(Pay_On_time) * 100) %>% 
@@ -161,8 +186,8 @@ SC_IO <- IT_FOT %>% group_by(Invoice_Recepient) %>%
                  "Overtime Invoices submitted on time","Overtime Payments Submitted on time"))
 
 SC_IO <- IT_VOT %>% group_by(Invoice_Recepient) %>% 
-  mutate(Submit_On_time = Date_Submitted <= dmy(paste(15,month(Date_Submitted),2020)),
-         Pay_On_time = Date_Payment_Recieved <= dmy(paste(25,month(Date_Payment_Recieved),2020))) %>% 
+  mutate(Submit_On_time = Date_Submitted <= dmy(paste(15,match(Month,month.name),2020)),
+         Pay_On_time = Date_Payment_Recieved <= dmy(paste(25,match(Month,month.name),2020))) %>% 
   summarise(Average_Date_Pay = as.integer(mean(day(Date_Payment_Recieved))),
             Average_Date_Submit = as.integer(mean(day(Date_Submitted))),
             Submit_On_time = mean(Submit_On_time) * 100, Pay_On_time = mean(Pay_On_time) * 100) %>% 
@@ -184,61 +209,308 @@ SC_IO <- IT_VOT %>% group_by(Invoice_Recepient) %>%
 SC_WMA <- WMA %>% group_by(ID) %>% summarise(Score = mean(Attendance == "P") * 100) %>% 
   filter(ID == "HQS0017") %>% mutate(KPI = "Weekly Meeting Attendance") %>% select(KPI,Score)
 
+SC_MTT <- MTT %>% summarise(Mandatory_Training_Score = mean(Score,na.rm = T), Mandatory_Training_Attendance = mean(!is.na(Date_Completed)) * 100) %>% 
+  gather(key = "KPI", value = "Score") %>% mutate(KPI = str_replace_all(KPI,"_"," "))
 
-Score_MTT <- c(MTT$Score,MTT$Score_1,MTT$Score_2)
-SC_MTT <- MTT %>% ungroup() %>% gather(seq(3,ncol(.),4),key = "Course", value = "Status") %>%
-  mutate(Score = Score_MTT) %>% select(Staff_ID,Staff_Member,Course,Status,Score) %>% filter(Staff_ID == "HQS0017") %>%
-  mutate(KPI = paste("Mandatory Training Course:",str_replace_all(Course,"_"," "))) %>% 
-  add_row(KPI = "Mandatory Training Attendance", Score = mean(!is.na(.$Score)) *100) %>%
-  select(KPI,Score)
- 
 
 SC_TS <- TS %>% filter(Stage == "Date Submitted to the Office") %>% group_by(OPCO) %>% 
-  mutate(Success = Date <= following(dmy(paste(15,month(Date),2020)),cal = "mycal")) %>%
+  mutate(Success = Date <= following(dmy(paste(15,match(Month,month.name),2020)),cal = "mycal")) %>%
   summarise(Date = day(mean.Date(Date)), Success = mean(Success) * 100) %>% 
   filter(OPCO == "TWOB") %>%
   gather(2:3,key = "KPI",value = "Score") %>% 
   mutate(KPI = c("Average Date Time Sheets submitted on","Time Sheets Submitted on Time")) %>% select(-1)
 
 SC_OTS <- OTS %>% filter(Stage == "Date Submitted to the Office") %>% group_by(OPCO) %>% 
-  mutate(Success = Date <= following(dmy(paste(15,month(Date),2020)),cal = "mycal")) %>%
+  mutate(Success = Date <= following(dmy(paste(15,match(Month,month.name),2020)),cal = "mycal")) %>%
   summarise(Date = day(mean.Date(Date)), Success = mean(Success) * 100) %>% 
   filter(OPCO == "TWOB") %>%
   gather(2:3,key = "KPI",value = "Score") %>% 
   mutate(KPI = c("Average Date Overtime sheets submitted on","Overtime Sheets Submitted on Time")) %>% select(-1)
 
-SC_DPA <- DPA %>% gather(3:6, key = "Program Name", value = "Attendance") %>% group_by(ID) %>% summarise(Score = sum(Attendance == "Attended")) %>% filter(ID == "HQS0017") %>%
+SC_DPA <- DPA %>% group_by(ID) %>% summarise(Score = sum(Attendance == "Attended")) %>% filter(ID == "HQS0017") %>%
   mutate(KPI = "Development Programs Attended") %>% select(KPI, Score)
 
 
 SC <- SC_Log_Sheet %>% rbind(SC_CSS) %>% rbind(SC_IS) %>% rbind(SC_IO) %>% rbind(SC_WMA) %>% rbind(SC_MTT) %>% rbind(SC_TS) %>% rbind(SC_OTS) %>% rbind(SC_DPA)
-SC_units <- c("Days",
+SC_units <- c(" day",
               "%",
-              "day of each month","day of each month","%","%",
-              "day of each month","day of each month","%","%",
+              " day"," day","%","%",
+              " day"," day","%","%",
               "%",
               "%",
               "%",
-              "day of each month","%",
-              "day of each month","%",
+              " day","%",
+              " day","%",
               "")
 SC_target <- c(3,
                85,
-               1,15,NA,NA,
-               15,25,NA,NA,
+               1,15,80,80,
+               15,25,80,80,
                80,
-               NA,
+               80,
                100,
-               15,NA,
-               15,NA,
+               15,80,
+               15,80,
                1)
-SC %>% mutate( Score = format(Score, digits = 0), Target = SC_target, Units = SC_units, Units = if_else(str_detect(Units,"day"),
-                                                                     if_else(str_detect(Score,"\\d*1$"),"st",
-                                                                             if_else(str_detect(Score,"\\d*2$"),"nd",
-                                                                                     if_else(str_detect(Score,"\\d*13$"),"th",
-                                                                                             if_else(str_detect(Score,"3$"),"rd","th")))),Units),
-               Score = paste(Score,Units,sep = "")) %>% select(-Units) %>% knitr::kable()
-
-
+SC %>% mutate(Score = format(Score, digits = 0), Target = SC_target, 
+              Units = SC_units, Units = if_else(str_detect(Units," day"),
+                                                if_else(str_detect(Score,"\\d*1$"),"st",
+                                                        if_else(str_detect(Score,"\\d*2$"),"nd",
+                                                                if_else(str_detect(Score,"\\d*13$"),"th",
+                                                                        if_else(str_detect(Score,"3$"),"rd","th")))),Units),
+              Score = paste(Score,Units,sep = ""), 
+              Units = SC_units, Units = if_else(str_detect(Units," day"),
+                                                if_else(str_detect(Target,"\\d*1$"),"st",
+                                                        if_else(str_detect(Target,"\\d*2$"),"nd",
+                                                                if_else(str_detect(Target,"\\d*13$"),"th",
+                                                                        if_else(str_detect(Target,"3$"),"rd","th")))),Units),
+              Target = paste(Target,Units,sep = "")) %>% select(-Units) %>% kable()
 
 ```
+
+# Detailed Analysis
+
+## Invoice Collection and Submission
+
+### Salary Invoices: Date Submitted, Date Payment Collected
+
+```{r Salary Invoice Date Submitted, echo=FALSE, message=FALSE, warning=FALSE}
+## Salary Invoices
+### Date Submitted
+IT_Salary %>% group_by(Invoice_Recepient,Month) %>% 
+  mutate(Submit_On_time = Date_Submitted <= dmy(paste(15,match(Month,month.name),2020)),
+         Pay_On_time = Date_Payment_Recieved <= dmy(paste(15,match(Month,month.name),2020))) %>% 
+  summarise(Average_Date_Pay = as.integer(mean(day(Date_Payment_Recieved))),
+            Average_Date_Submit = as.integer(mean(day(Date_Submitted))),
+            Submit_On_time = mean(Submit_On_time) * 100, Pay_On_time = mean(Pay_On_time) * 100) %>% 
+  mutate(OPCO = if_else(str_detect(Invoice_Recepient, "^T"),"2B",
+                        if_else(str_detect(Invoice_Recepient,"SHPOC"),"SHPOC",Invoice_Recepient))) %>% 
+  group_by(OPCO,Month) %>%
+  gather(key = "KPI", value = "Score", Average_Date_Pay:Pay_On_time) %>%
+  filter(OPCO == "2B") %>% arrange(Invoice_Recepient, .by_group = TRUE) %>%
+  mutate(KPI = if_else(KPI == "Average_Date_Pay","Average Date Salary Payment Recieved",
+                       if_else(KPI == "Average_Date_Submit","Average Date Salary Invoices submitted on",
+                               if_else(KPI == "Submit_On_time" ,"Salary Invoices submitted on time", "Salary Payments Submitted on time"))),
+         Invoice_Recepient = if_else(Invoice_Recepient == "TAn4_FIELD", "2A&4 - Field",
+                                     if_else(Invoice_Recepient == "TAn4_KRT","2A&4 - KRT",
+                                             if_else(Invoice_Recepient == "TB_KRT","2B - KRT","2B - Field")))) %>% 
+  ungroup() %>%
+  filter(str_detect(KPI,"Date")) %>% 
+  select(Month,Invoice_Recepient,KPI,Score, -OPCO) %>% mutate(Month = match(Month,month.name)) %>% 
+  ggplot(aes(Month,Score,color = Invoice_Recepient)) + geom_point() + facet_wrap(~KPI, nrow = 2, ncol = 2) + labs(y = "Average Date", title = "Salary Invoices", color = "Division")  +
+  scale_y_continuous(limits = c(0,31), expand = c(0,NA), breaks = seq(0,31,5)) + scale_x_continuous(labels = month.abb[4:12], breaks = 4:12) + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+### Salary Invoices: Percentage Submitted on  time, Percentage Payment Collected on time
+
+```{r Salary Invoice Percentage, echo=FALSE, message=FALSE, warning=FALSE}
+### Percentage Submitted on Time
+IT_Salary %>% group_by(Invoice_Recepient,Month) %>% 
+  mutate(Submit_On_time = Date_Submitted <= dmy(paste(15,match(Month,month.name),2020)),
+         Pay_On_time = Date_Payment_Recieved <= dmy(paste(15,match(Month,month.name),2020))) %>% 
+  summarise(Average_Date_Pay = as.integer(mean(day(Date_Payment_Recieved))),
+            Average_Date_Submit = as.integer(mean(day(Date_Submitted))),
+            Submit_On_time = mean(Submit_On_time) * 100, Pay_On_time = mean(Pay_On_time) * 100) %>% 
+  mutate(OPCO = if_else(str_detect(Invoice_Recepient, "^T"),"2B",
+                        if_else(str_detect(Invoice_Recepient,"SHPOC"),"SHPOC",Invoice_Recepient))) %>% 
+  group_by(OPCO,Month) %>%
+  gather(key = "KPI", value = "Score", Average_Date_Pay:Pay_On_time) %>%
+  filter(OPCO == "2B") %>% arrange(Invoice_Recepient, .by_group = TRUE) %>%
+  mutate(KPI = if_else(KPI == "Average_Date_Pay","Average Date Salary Payment Recieved",
+                       if_else(KPI == "Average_Date_Submit","Average Date Salary Invoices submitted on",
+                               if_else(KPI == "Submit_On_time" ,"Salary Invoices submitted on time", "Salary Payments Submitted on time"))),
+         Invoice_Recepient = if_else(Invoice_Recepient == "TAn4_FIELD", "2A&4 - Field",
+                                     if_else(Invoice_Recepient == "TAn4_KRT","2A&4 - KRT",
+                                             if_else(Invoice_Recepient == "TB_KRT","2B - KRT","2B - Field")))) %>% 
+  ungroup() %>%
+  filter(str_detect(KPI,"on time")) %>% 
+  select(Month,Invoice_Recepient,KPI,Score, -OPCO) %>% mutate(Month = match(Month,month.name), Score = cummean(Score)) %>% 
+  ggplot(aes(Month,Score,color = Invoice_Recepient)) + geom_point() + facet_wrap(~KPI, nrow = 2, ncol = 2) + labs(y = "Percentage On Time", title = "Salary Invoices", color = "Division")  +
+  scale_y_continuous(limits = c(0,100), expand = c(0,NA), breaks = seq(0,100,5)) + scale_x_continuous(labels = month.abb[4:12], breaks = 4:12) + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+### Fixed Overtime Invoices: Date Submitted, Date Payment Collected
+
+```{r FOT Invoice Date Submitted, echo=FALSE, message=FALSE, warning=FALSE}
+### Date Submitted
+IT_FOT %>% group_by(Invoice_Recepient,Month) %>% 
+  mutate(Submit_On_time = Date_Submitted <= dmy(paste(15,match(Month,month.name),2020)),
+         Pay_On_time = Date_Payment_Recieved <= dmy(paste(15,match(Month,month.name),2020))) %>% 
+  summarise(Average_Date_Pay = as.integer(mean(day(Date_Payment_Recieved))),
+            Average_Date_Submit = as.integer(mean(day(Date_Submitted))),
+            Submit_On_time = mean(Submit_On_time) * 100, Pay_On_time = mean(Pay_On_time) * 100) %>% 
+  mutate(OPCO = if_else(str_detect(Invoice_Recepient, "^T"),"2B",
+                        if_else(str_detect(Invoice_Recepient,"SHPOC"),"SHPOC",Invoice_Recepient))) %>% 
+  group_by(OPCO,Month) %>%
+  gather(key = "KPI", value = "Score", Average_Date_Pay:Pay_On_time) %>%
+  filter(OPCO == "2B") %>% arrange(Invoice_Recepient, .by_group = TRUE) %>%
+  mutate(KPI = if_else(KPI == "Average_Date_Pay","Average Date Salary Payment Recieved",
+                       if_else(KPI == "Average_Date_Submit","Average Date Salary Invoices submitted on",
+                               if_else(KPI == "Submit_On_time" ,"Salary Invoices submitted on time", "Salary Payments Submitted on time"))),
+         Invoice_Recepient = if_else(Invoice_Recepient == "TAn4_FIELD", "2A&4 - Field",
+                                     if_else(Invoice_Recepient == "TAn4_KRT","2A&4 - KRT",
+                                             if_else(Invoice_Recepient == "TB_KRT","2B - KRT","2B - Field")))) %>% 
+  ungroup() %>%
+  filter(str_detect(KPI,"Date")) %>% 
+  select(Month,Invoice_Recepient,KPI,Score, -OPCO) %>% mutate(Month = match(Month,month.name)) %>% 
+  ggplot(aes(Month,Score,color = Invoice_Recepient)) + geom_point() + facet_wrap(~KPI, nrow = 2, ncol = 2) + labs(y = "Average Date", title = "Salary Invoices", color = "Division")  +
+  scale_y_continuous(limits = c(0,31), expand = c(0,NA), breaks = seq(0,31,5)) + scale_x_continuous(labels = month.abb[4:12], breaks = 4:12) + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+### Fixed Overtime Invoices: Percentage Submitted on  time, Percentage Payment Collected on time
+
+```{r FOT Percentage, echo=FALSE, message=FALSE, warning=FALSE}
+### Percentage Submitted on Time
+IT_FOT %>% group_by(Invoice_Recepient,Month) %>% 
+  mutate(Submit_On_time = Date_Submitted <= dmy(paste(15,match(Month,month.name),2020)),
+         Pay_On_time = Date_Payment_Recieved <= dmy(paste(15,match(Month,month.name),2020))) %>% 
+  summarise(Average_Date_Pay = as.integer(mean(day(Date_Payment_Recieved))),
+            Average_Date_Submit = as.integer(mean(day(Date_Submitted))),
+            Submit_On_time = mean(Submit_On_time) * 100, Pay_On_time = mean(Pay_On_time) * 100) %>% 
+  mutate(OPCO = if_else(str_detect(Invoice_Recepient, "^T"),"2B",
+                        if_else(str_detect(Invoice_Recepient,"SHPOC"),"SHPOC",Invoice_Recepient))) %>% 
+  group_by(OPCO,Month) %>%
+  gather(key = "KPI", value = "Score", Average_Date_Pay:Pay_On_time) %>%
+  filter(OPCO == "2B") %>% arrange(Invoice_Recepient, .by_group = TRUE) %>%
+  mutate(KPI = if_else(KPI == "Average_Date_Pay","Average Date Salary Payment Recieved",
+                       if_else(KPI == "Average_Date_Submit","Average Date Salary Invoices submitted on",
+                               if_else(KPI == "Submit_On_time" ,"Salary Invoices submitted on time", "Salary Payments Submitted on time"))),
+         Invoice_Recepient = if_else(Invoice_Recepient == "TAn4_FIELD", "2A&4 - Field",
+                                     if_else(Invoice_Recepient == "TAn4_KRT","2A&4 - KRT",
+                                             if_else(Invoice_Recepient == "TB_KRT","2B - KRT","2B - Field")))) %>% 
+  ungroup() %>%
+  filter(str_detect(KPI,"on time")) %>% 
+  select(Month,Invoice_Recepient,KPI,Score, -OPCO) %>% mutate(Month = match(Month,month.name), Score = cummean(Score)) %>% 
+  ggplot(aes(Month,Score,color = Invoice_Recepient)) + geom_point() + facet_wrap(~KPI, nrow = 2, ncol = 2) + labs(y = "Percentage Submitted On Time", title = "Salary Invoices", color = "Division")  +
+  scale_y_continuous(limits = c(0,100), expand = c(0,NA), breaks = seq(0,100,5)) + scale_x_continuous(labels = month.abb[4:12], breaks = 4:12) + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+### Variable Overtime Invoices: Date Submitted, Date Payment Collected
+
+```{r VOT Invoice Date Submitted, echo=FALSE, message=FALSE, warning=FALSE}
+### Date Submitted
+IT_VOT %>% group_by(Invoice_Recepient,Month) %>% 
+  mutate(Submit_On_time = Date_Submitted <= dmy(paste(15,match(Month,month.name),2020)),
+         Pay_On_time = Date_Payment_Recieved <= dmy(paste(15,match(Month,month.name),2020))) %>% 
+  summarise(Average_Date_Pay = as.integer(mean(day(Date_Payment_Recieved))),
+            Average_Date_Submit = as.integer(mean(day(Date_Submitted))),
+            Submit_On_time = mean(Submit_On_time) * 100, Pay_On_time = mean(Pay_On_time) * 100) %>% 
+  mutate(OPCO = if_else(str_detect(Invoice_Recepient, "^T"),"2B",
+                        if_else(str_detect(Invoice_Recepient,"SHPOC"),"SHPOC",Invoice_Recepient))) %>% 
+  group_by(OPCO,Month) %>%
+  gather(key = "KPI", value = "Score", Average_Date_Pay:Pay_On_time) %>%
+  filter(OPCO == "2B") %>% arrange(Invoice_Recepient, .by_group = TRUE) %>%
+  mutate(KPI = if_else(KPI == "Average_Date_Pay","Average Date Salary Payment Recieved",
+                       if_else(KPI == "Average_Date_Submit","Average Date Salary Invoices submitted on",
+                               if_else(KPI == "Submit_On_time" ,"Salary Invoices submitted on time", "Salary Payments Submitted on time"))),
+         Invoice_Recepient = if_else(Invoice_Recepient == "TAn4_FIELD", "2A&4 - Field",
+                                     if_else(Invoice_Recepient == "TAn4_KRT","2A&4 - KRT",
+                                             if_else(Invoice_Recepient == "TB_KRT","2B - KRT","2B - Field")))) %>% 
+  ungroup() %>%
+  filter(str_detect(KPI,"Date")) %>% 
+  select(Month,Invoice_Recepient,KPI,Score, -OPCO) %>% mutate(Month = match(Month,month.name)) %>% 
+  ggplot(aes(Month,Score,color = Invoice_Recepient)) + geom_point() + facet_wrap(~KPI, nrow = 2, ncol = 2) + labs(y = "Average Date", title = "Salary Invoices", color = "Division")  +
+  scale_y_continuous(limits = c(0,31), expand = c(0,NA), breaks = seq(0,31,5)) + scale_x_continuous(labels = month.abb[4:12], breaks = 4:12) + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+### Fixed Overtime Invoices: Percentage Submitted on  time, Percentage Payment Collected on time
+
+```{r VOT Percentage, echo=FALSE, message=FALSE, warning=FALSE}
+### Percentage Submitted on Time
+IT_VOT %>% group_by(Invoice_Recepient,Month) %>% 
+  mutate(Submit_On_time = Date_Submitted <= dmy(paste(15,match(Month,month.name),2020)),
+         Pay_On_time = Date_Payment_Recieved <= dmy(paste(15,match(Month,month.name),2020))) %>% 
+  summarise(Average_Date_Pay = as.integer(mean(day(Date_Payment_Recieved))),
+            Average_Date_Submit = as.integer(mean(day(Date_Submitted))),
+            Submit_On_time = mean(Submit_On_time) * 100, Pay_On_time = mean(Pay_On_time) * 100) %>% 
+  mutate(OPCO = if_else(str_detect(Invoice_Recepient, "^T"),"2B",
+                        if_else(str_detect(Invoice_Recepient,"SHPOC"),"SHPOC",Invoice_Recepient))) %>% 
+  group_by(OPCO,Month) %>%
+  gather(key = "KPI", value = "Score", Average_Date_Pay:Pay_On_time) %>%
+  filter(OPCO == "2B") %>% arrange(Invoice_Recepient, .by_group = TRUE) %>%
+  mutate(KPI = if_else(KPI == "Average_Date_Pay","Average Date Salary Payment Recieved",
+                       if_else(KPI == "Average_Date_Submit","Average Date Salary Invoices submitted on",
+                               if_else(KPI == "Submit_On_time" ,"Salary Invoices submitted on time", "Salary Payments Submitted on time"))),
+         Invoice_Recepient = if_else(Invoice_Recepient == "TAn4_FIELD", "2A&4 - Field",
+                                     if_else(Invoice_Recepient == "TAn4_KRT","2A&4 - KRT",
+                                             if_else(Invoice_Recepient == "TB_KRT","2B - KRT","2B - Field")))) %>% 
+  ungroup() %>%
+  filter(str_detect(KPI,"on time")) %>% 
+  select(Month,Invoice_Recepient,KPI,Score, -OPCO) %>% mutate(Month = match(Month,month.name), Score = cummean(Score)) %>% 
+  ggplot(aes(Month,Score,color = Invoice_Recepient)) + geom_point() + facet_wrap(~KPI, nrow = 2, ncol = 2) + labs(y = "Percentage Submitted On Time", title = "Salary Invoices", colors = "Division")  +
+  scale_y_continuous(limits = c(0,100), expand = c(0,NA), breaks = seq(0,100,5)) + scale_x_continuous(labels = month.abb[4:12], breaks = 4:12) + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+### Casual Labour Invoices: Date Submitted, Date Payment Collected
+
+```{r Casual Invoice Date Submitted, echo=FALSE, message=FALSE, warning=FALSE}
+### Date Submitted
+IT_CL %>% group_by(Invoice_Recepient,Month) %>% 
+  mutate(Submit_On_time = Date_Submitted <= dmy(paste(15,match(Month,month.name),2020)),
+         Pay_On_time = Date_Payment_Recieved <= dmy(paste(15,match(Month,month.name),2020))) %>% 
+  summarise(Average_Date_Pay = as.integer(mean(day(Date_Payment_Recieved))),
+            Average_Date_Submit = as.integer(mean(day(Date_Submitted))),
+            Submit_On_time = mean(Submit_On_time) * 100, Pay_On_time = mean(Pay_On_time) * 100) %>% 
+  mutate(OPCO = if_else(str_detect(Invoice_Recepient, "^T"),"2B",
+                        if_else(str_detect(Invoice_Recepient,"SHPOC"),"SHPOC",Invoice_Recepient))) %>% 
+  group_by(OPCO,Month) %>%
+  gather(key = "KPI", value = "Score", Average_Date_Pay:Pay_On_time) %>%
+  filter(OPCO == "2B") %>% arrange(Invoice_Recepient, .by_group = TRUE) %>%
+  mutate(KPI = if_else(KPI == "Average_Date_Pay","Average Date Salary Payment Recieved",
+                       if_else(KPI == "Average_Date_Submit","Average Date Salary Invoices submitted on",
+                               if_else(KPI == "Submit_On_time" ,"Salary Invoices submitted on time", "Salary Payments Submitted on time"))),
+         Invoice_Recepient = if_else(Invoice_Recepient == "TAn4_FIELD", "2A&4 - Field",
+                                     if_else(Invoice_Recepient == "TAn4_KRT","2A&4 - KRT",
+                                             if_else(Invoice_Recepient == "TB_KRT","2B - KRT","2B - Field")))) %>% 
+  ungroup() %>%
+  filter(str_detect(KPI,"Date")) %>% 
+  select(Month,Invoice_Recepient,KPI,Score, -OPCO) %>% mutate(Month = match(Month,month.name)) %>% 
+  ggplot(aes(Month,Score,color = Invoice_Recepient)) + geom_point() + facet_wrap(~KPI, nrow = 2, ncol = 2) + labs(y = "Average Date", title = "Salary Invoices",colors = "Division")  +
+  scale_y_continuous(limits = c(0,31), expand = c(0,NA), breaks = seq(0,31,5)) + scale_x_continuous(labels = month.abb[4:12], breaks = 4:12) + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+### Casual Labour Invoices: Percentage Submitted on  time, Percentage Payment Collected on time
+
+```{r Casual Percentage, echo=FALSE, message=FALSE, warning=FALSE}
+### Percentage Submitted on Time
+IT_CL %>% group_by(Invoice_Recepient,Month) %>% 
+  mutate(Submit_On_time = Date_Submitted <= dmy(paste(15,match(Month,month.name),2020)),
+         Pay_On_time = Date_Payment_Recieved <= dmy(paste(15,match(Month,month.name),2020))) %>% 
+  summarise(Average_Date_Pay = as.integer(mean(day(Date_Payment_Recieved))),
+            Average_Date_Submit = as.integer(mean(day(Date_Submitted))),
+            Submit_On_time = mean(Submit_On_time) * 100, Pay_On_time = mean(Pay_On_time) * 100) %>% 
+  mutate(OPCO = if_else(str_detect(Invoice_Recepient, "^T"),"2B",
+                        if_else(str_detect(Invoice_Recepient,"SHPOC"),"SHPOC",Invoice_Recepient))) %>% 
+  group_by(OPCO,Month) %>%
+  gather(key = "KPI", value = "Score", Average_Date_Pay:Pay_On_time) %>%
+  filter(OPCO == "2B") %>% arrange(Invoice_Recepient, .by_group = TRUE) %>%
+  mutate(KPI = if_else(KPI == "Average_Date_Pay","Average Date Salary Payment Recieved",
+                       if_else(KPI == "Average_Date_Submit","Average Date Salary Invoices submitted on",
+                               if_else(KPI == "Submit_On_time" ,"Salary Invoices submitted on time", "Salary Payments Submitted on time"))),
+         Invoice_Recepient = if_else(Invoice_Recepient == "TAn4_FIELD", "2A&4 - Field",
+                                     if_else(Invoice_Recepient == "TAn4_KRT","2A&4 - KRT",
+                                             if_else(Invoice_Recepient == "TB_KRT","2B - KRT","2B - Field")))) %>% 
+  ungroup() %>%
+  filter(str_detect(KPI,"on time")) %>% 
+  select(Month,Invoice_Recepient,KPI,Score, -OPCO) %>% mutate(Month = match(Month,month.name), Score = cummean(Score)) %>% 
+  ggplot(aes(Month,Score,color = Invoice_Recepient)) + geom_point() + facet_wrap(~KPI, nrow = 2, ncol = 2) + labs(y = "Percentage Submitted On Time", title = "Salary Invoices", color = "Division")  +
+  scale_y_continuous(limits = c(0,100), expand = c(0,NA), breaks = seq(0,100,5)) + scale_x_continuous(labels = month.abb[4:12], breaks = 4:12) + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+## Customer Service Survey
+
+```{r CSS Details}
+CSS %>%  group_by(Dimension,OPCO) %>% summarise(Score = mean(Score) * 25) %>% mutate(KPI = Dimension, Quarter = "3rd")  %>% ungroup() %>% filter(OPCO == "2B") %>%
+  select(Quarter, KPI, Score)  %>% kable()
+```
+
+## Time Sheets
+

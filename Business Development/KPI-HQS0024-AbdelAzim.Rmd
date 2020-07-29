@@ -1,0 +1,58 @@
+---
+title: "KPI-HQS0024-AbdelAzim"
+author: "Hussam Hanafi"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE)
+library(tidyverse)
+library(lubridate)
+library(bizdays)
+library(readxl)
+library(googledrive)
+drive_auth(email = "3pl.hr.pnd@gmail.com")
+create.calendar(name = "mycal", weekdays = c("friday","saturday"))
+options(digits = 1)
+
+# Cash Payment Tracking
+drive_download("Cash Payment Tracking", path = file.path(getwd(),"DATA","Cash Payment Tracking.csv"),overwrite = TRUE)
+CPT <- read_csv(file.path(getwd(),"DATA","Cash Payment Tracking.csv"),skip = 2)
+colnames(CPT) <- colnames(CPT) %>% str_replace_all("2","TWO")
+CPT <- CPT %>% fill(Month)
+CPT <- CPT %>% gather(3:7,key = "OPCO",value = "Value") %>% spread(Stage,Value) %>% mutate(Month = factor(Month,month.name))
+colnames(CPT) <- colnames(CPT) %>% str_replace_all(" ","_")
+
+SC_CPT<- CPT %>% summarise(Average_Date_Collected = mean(Date_Collected), Average_Date_Paid = mean(Date_Paid),
+                           Collected_On_Time = mean(Date_Collected <= dmy(paste(25,month(Date_Collected),2020)))*100,
+                           Paid_On_Time = mean(Date_Paid <= dmy(paste(30,month(Date_Paid),2020)))*100) %>% 
+  gather(key = "KPI",value = "Score") %>%
+  mutate(KPI = str_replace_all(KPI,"_"," "))
+
+# Cash Report
+drive_download("Reports-Plan Tracking", path = file.path(getwd(),"DATA","Reports-Plan Tracking.xlsx"),overwrite = TRUE)
+RPT <- read_excel("C://Users//USER//Documents//R//Projects//3PL-Performance-Management//DATA//Reports-Plan Tracking.xlsx", sheet = "Monthly", skip = 2)
+colnames(RPT) <- str_replace_all(colnames(RPT), " " ,"_")
+RPT <- RPT %>% gather(key = "Month", value = "Date",Jan:Dec)
+```
+
+
+
+```{r score card}
+# Score Card
+SC_CPT<- CPT %>% summarise(Average_Date_Collected = mean(Date_Collected), Average_Date_Paid = mean(Date_Paid),
+                           Collected_On_Time = mean(Date_Collected <= dmy(paste(25,month(Date_Collected),2020)))*100,
+                           Paid_On_Time = mean(Date_Paid <= dmy(paste(30,month(Date_Paid),2020)))*100) %>% 
+  gather(key = "KPI",value = "Score") %>%
+  mutate(KPI = str_replace_all(KPI,"_"," "))
+
+SC_RPT <- RPT %>% filter(Department == "Business Development", Report_Name == "Cash Report") %>%
+  summarise(Cash_Report_Average_Date = as.integer(mean(day(Date))),
+            Cash_Report_On_Time = mean(Date <= if_else(day(ceiling_date(dmy(paste(1,month(Date),2020,sep = "/")),"month") - days(1)) == 31,
+                                                  dmy(paste(30,month(Date),2020,sep = "/")),
+                                                  ceiling_date(dmy(paste(1,month(Date),2020,sep = "/")),"month") - days(1)))*100) %>%
+  gather(key = "KPI", value = "Score") %>% mutate(KPI = str_replace_all(KPI,"_"," "))
+
+
+```
